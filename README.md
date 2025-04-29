@@ -1,5 +1,7 @@
 <H3>ENTER YOUR NAME</H3>
+K SANTHAN KUAMR
 <H3>ENTER YOUR REGISTER NO.</H3>
+212223240065
 <H3>EX. NO.3</H3>
 <H3>DATE:</H3>
 <H2 aligh = center> Implementation of MLP for a non-linearly separable data</H2>
@@ -36,11 +38,128 @@ Step 3: Repeat the  iteration  until the losses become constant and  minimum<BR>
 Step 4 : Test for the XOR patterns.
 
 <H3>Program:</H3>
-Insert your code here
+
+```python
+import numpy as np
+import pandas as pd
+import io
+import matplotlib.pyplot as plt
+
+# Initialize the input vector and output vector for XOR
+x = np.array([[0,0,1,1],[0,1,0,1]])
+y = np.array([[0,1,1,0]])
+
+#Initialize the structure of MLP with input, hidden, and output layer
+n_x = 2   # Number of input features
+n_y = 1   # Number of output features
+n_h = 2   # Number of neurons in the hidden layer
+m = x.shape[1] # Number of training examples
+lr = 0.1  # Learning rate
+
+# Weight matrix for hidden layer randomly
+w1 = np.random.rand(n_h, n_x)  # Weight matrix for hidden layer (n_h, n_x)
+w2 = np.random.rand(n_y, n_h)  # Weight matrix for output layer (n_y, n_h)
+
+losses = []
+
+def sigmoid(z):
+    """
+    Sigmoid activation function.
+    """
+    z = 1 / (1 + np.exp(-z))
+    return z
+
+def forward_prop(w1, w2, x):
+    """
+    Performs forward propagation through the network.
+    """
+    z1 = np.dot(w1, x)
+    a1 = sigmoid(z1)
+    z2 = np.dot(w2, a1)
+    a2 = sigmoid(z2)
+    return z1, a1, z2, a2
+
+def back_prop(m, w1, w2, z1, a1, z2, a2, y):
+    """
+    Performs back propagation to compute gradients.
+    """
+    # Derivative of the loss with respect to z2
+    dz2 = a2 - y
+
+    # Gradient of the loss with respect to w2
+    dw2 = np.dot(dz2, a1.T) / m
+
+    # Derivative of the loss with respect to z1
+    # This involves the derivative of the sigmoid activation at layer 1: a1 * (1 - a1)
+    dz1 = np.dot(w2.T, dz2) * a1 * (1 - a1)
+
+    # Gradient of the loss with respect to w1
+    dw1 = np.dot(dz1, x.T) / m
+
+    return dz2, dw2, dz1, dw1
+
+# Training loop
+iterations = 10000
+
+for i in range(iterations):
+    # Forward propagation
+    z1, a1, z2, a2 = forward_prop(w1, w2, x)
+
+    # Calculate loss (Binary Cross-Entropy)
+    # Add a small epsilon to avoid log(0)
+    epsilon = 1e-8
+    loss = -(1/m) * np.sum(y * np.log(a2 + epsilon) + (1 - y) * np.log(1 - a2 + epsilon))
+    losses.append(loss)
+
+    # Back propagation
+    da2, dw2, dz1, dw1 = back_prop(m, w1, w2, z1, a1, z2, a2, y)
+
+    # Update weights
+    w2 = w2 - lr * dw2
+    w1 = w1 - lr * dw1
+
+# Plot losses to see how the network trained
+plt.plot(losses)
+plt.xlabel("EPOCHS")
+plt.ylabel("Loss value")
+plt.title("Loss over Epochs")
+plt.show() # Display the plot
+
+def predict(w1, w2, input_data):
+    """
+    Predicts the output for a given input using the trained weights.
+    """
+    # Forward pass with the input data
+    z1, a1, z2, a2 = forward_prop(w1, w2, input_data)
+
+    # Apply threshold to get binary output (0 or 1)
+    # Squeeze to handle potential extra dimensions if input_data is a single example
+    prediction = (np.squeeze(a2) >= 0.5).astype(int)
+
+    # Print the input and the predicted output
+    # Format input_data for printing assuming it's a column vector like [[x1], [x2]]
+    input_values = input_data.flatten().tolist() # Convert [[x1], [x2]] to [x1, x2]
+    print(input_values, prediction)
+
+# Test the trained model with XOR inputs
+print('Input',' Output')
+
+test = np.array([[1], [0]]) # Input: [1, 0]
+predict(w1, w2, test)
+
+test = np.array([[1], [1]]) # Input: [1, 1]
+predict(w1, w2, test)
+
+test = np.array([[0], [1]]) # Input: [0, 1]
+predict(w1, w2, test)
+
+test = np.array([[0], [0]]) # Input: [0, 0]
+predict(w1, w2, test)
+```
 
 <H3>Output:</H3>
 
-Show your results here
+![image](https://github.com/user-attachments/assets/7ca72fb0-5cc6-4d97-a07d-f8366d059b78)
 
 <H3> Result:</H3>
 Thus, XOR classification problem can be solved using MLP in Python 
